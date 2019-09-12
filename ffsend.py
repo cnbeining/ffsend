@@ -241,18 +241,14 @@ def download(service, fid, secret, dest, password=None, url=None):
 
     ho = sha256()
 
-    print("Downloading to %s..." % filename)
-
     try:
         with open(filename + '.tmp', 'wb') as outf:
-            bar = ProgressBar(expected_size=flen, filled_char='=')
 
             dl = 0
             tag = b''
             taglen = 16
             for data in resp.iter_content(chunk_size=8192):
                 dl += len(data)
-                bar.show(dl)
 
                 if dl > flen - taglen:
                     dend = max(len(data) - (dl - (flen - taglen)), 0)
@@ -265,14 +261,13 @@ def download(service, fid, secret, dest, password=None, url=None):
                 if len(tag) == taglen:
                     break
 
-            print()
             cipher.verify(tag)
     except Exception as e:
-        print("File download failed:", e)
         os.unlink(filename + '.tmp')
+        return False
     else:
         os.rename(filename + '.tmp', filename)
-        print("Done, file verified!")
+        return True
 
 def parse_args(argv):
     import argparse
